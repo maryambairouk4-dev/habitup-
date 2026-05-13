@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HabitUp</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --purple:#6C4FD6;--purple2:#a78bfa;--purple-light:#ede9fe;
+  --green:#22c55e;--amber:#f59e0b;
+  --text:#2d2060;--muted:#8b7ec8;--border:#e8e2ff;
+  --bg:#f7f5ff;--white:#fff;
+}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);}
+body.rtl{direction:rtl;}
+
+/* ===== AUTH ===== */
+#auth-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#6C4FD6,#a78bfa);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;}
+.auth-box{background:#fff;border-radius:28px;padding:40px 36px;width:100%;max-width:420px;text-align:center;}
+.auth-logo{font-size:50px;margin-bottom:6px;}
+.auth-title{font-size:26px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.auth-sub{font-size:14px;color:var(--muted);margin-bottom:28px;}
+.auth-tabs{display:flex;background:#f7f5ff;border-radius:16px;padding:4px;margin-bottom:24px;gap:4px;}
+.auth-tab{flex:1;padding:10px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;background:transparent;color:var(--muted);}
+.auth-tab.active{background:var(--purple);color:#fff;}
+.auth-input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:14px;font-size:15px;outline:none;color:var(--text);margin-bottom:12px;transition:border-color 0.2s;font-family:inherit;}
+.auth-input:focus{border-color:var(--purple);}
+.auth-error{color:#e24b4a;font-size:13px;margin-bottom:10px;min-height:18px;text-align:left;}
+.auth-submit{width:100%;padding:14px;background:var(--purple);color:#fff;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:14px;transition:opacity 0.2s;}
+.auth-submit:hover{opacity:0.9;}
+.auth-switch{font-size:13px;color:var(--muted);margin-bottom:18px;}
+.auth-switch span{color:var(--purple);font-weight:600;cursor:pointer;}
+.auth-divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.auth-divider hr{flex:1;border:none;border-top:1px solid var(--border);}
+.auth-divider span{font-size:12px;color:#b0a3e0;}
+.social-row{display:flex;gap:10px;}
+.social-btn{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:14px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;color:var(--text);transition:background 0.15s;}
+.social-btn:hover{background:#f7f5ff;}
+
+/* ===== NAV ===== */
+nav{background:var(--purple);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+.logo{color:#fff;font-size:22px;font-weight:700;}
+.logo span{color:#c4b8ff;}
+.nav-links{display:flex;gap:4px;align-items:center;}
+.nav-btn{background:none;border:none;color:rgba(255,255,255,0.75);padding:8px 14px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.15s;}
+.nav-btn:hover,.nav-btn.active{background:rgba(255,255,255,0.18);color:#fff;}
+.lang-btn{background:rgba(255,255,255,0.18);border:none;color:#fff;padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;margin-left:8px;}
+.user-chip{background:rgba(255,255,255,0.18);border:none;color:#fff;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:600;margin-left:6px;cursor:default;}
+
+/* ===== HERO ===== */
+.hero{background:linear-gradient(135deg,#6C4FD6,#a78bfa);padding:64px 24px;text-align:center;color:#fff;}
+.hero h1{font-size:42px;font-weight:700;margin-bottom:14px;line-height:1.2;}
+.hero p{font-size:18px;color:#c4b8ff;margin-bottom:32px;max-width:560px;margin-left:auto;margin-right:auto;}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-white{background:#fff;color:var(--purple);padding:13px 30px;border-radius:30px;border:none;font-size:16px;font-weight:700;cursor:pointer;transition:transform 0.15s;}
+.btn-white:hover{transform:scale(1.04);}
+.btn-outline{background:rgba(255,255,255,0.15);color:#fff;padding:13px 30px;border-radius:30px;border:2px solid rgba(255,255,255,0.45);font-size:16px;font-weight:700;cursor:pointer;transition:transform 0.15s;}
+.btn-outline:hover{transform:scale(1.04);}
+
+/* ===== STATS BAR ===== */
+.stats-bar{background:#fff;border-bottom:1.5px solid var(--border);display:flex;justify-content:center;gap:56px;padding:20px 24px;flex-wrap:wrap;}
+.stat-item{text-align:center;}
+.stat-num{font-size:28px;font-weight:700;color:var(--purple);}
+.stat-label{font-size:13px;color:var(--muted);margin-top:2px;}
+
+/* ===== SCREENS ===== */
+.screen{display:none;max-width:940px;margin:0 auto;padding:36px 20px;}
+.screen.active{display:block;}
+.section-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:18px;}
+
+/* ===== ANNOUNCE ===== */
+.announce{background:linear-gradient(90deg,#fbbf24,#f59e0b);border-radius:18px;padding:16px 20px;margin-bottom:26px;display:flex;align-items:center;gap:14px;}
+.announce p{font-size:15px;color:#78350f;font-weight:600;flex:1;}
+
+/* ===== TODAY CARD ===== */
+.today-card{background:linear-gradient(135deg,var(--purple),var(--purple2));border-radius:24px;padding:26px;color:#fff;margin-bottom:26px;cursor:pointer;transition:transform 0.15s;}
+.today-card:hover{transform:scale(1.01);}
+.today-label{font-size:12px;color:#c4b8ff;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;}
+.today-title{font-size:20px;font-weight:600;margin-bottom:16px;}
+.prog-bar{background:rgba(255,255,255,0.25);border-radius:10px;height:10px;margin-bottom:8px;overflow:hidden;}
+.prog-fill{background:#fff;height:100%;border-radius:10px;transition:width 0.6s;}
+.today-note{font-size:13px;color:#c4b8ff;}
+
+/* ===== MINI STATS ===== */
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.mini-stat{background:#fff;border-radius:18px;padding:20px;border:1.5px solid var(--border);text-align:center;}
+.ms-num{font-size:30px;font-weight:700;color:var(--purple);}
+.ms-label{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* ===== CHALLENGE CARDS ===== */
+.challenge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px;margin-bottom:28px;}
+.c-card{background:#fff;border-radius:20px;padding:22px;border:1.5px solid var(--border);transition:transform 0.15s,box-shadow 0.15s;}
+.c-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(108,79,214,0.13);}
+.c-icon{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;}
+.c-name{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.c-meta{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.c-footer{display:flex;align-items:center;justify-content:space-between;}
+.c-pts{font-size:14px;font-weight:700;color:var(--purple);}
+.join-btn{padding:8px 20px;border-radius:20px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.join-btn.join{background:var(--purple);color:#fff;}
+.join-btn.join:hover{background:#5a3ec0;}
+.join-btn.joined{background:var(--purple-light);color:var(--purple);}
+.join-btn.done{background:#dcfce7;color:#15803d;}
+
+/* ===== TABS ===== */
+.tab-row{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+.tab-btn{padding:9px 24px;border-radius:24px;border:1.5px solid var(--border);font-size:14px;font-weight:600;cursor:pointer;background:#fff;color:var(--muted);transition:all 0.15s;}
+.tab-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+
+/* ===== FEED ===== */
+.feed-item{background:#fff;border-radius:20px;padding:22px;margin-bottom:16px;border:1.5px solid var(--border);}
+.feed-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.feed-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+.feed-name{font-size:15px;font-weight:600;color:var(--text);}
+.feed-time{font-size:12px;color:#b0a3e0;}
+.feed-text{font-size:14px;color:#4a3d8c;line-height:1.65;margin-bottom:14px;}
+.feed-actions{display:flex;gap:12px;}
+.cheer-btn{background:var(--purple-light);border:none;border-radius:20px;padding:8px 18px;font-size:13px;color:var(--purple);cursor:pointer;font-weight:600;transition:background 0.15s;}
+.cheer-btn:hover{background:#ddd6ff;}
+
+/* ===== REWARDS ===== */
+.pts-card{background:linear-gradient(135deg,var(--purple),var(--purple2));border-radius:24px;padding:30px;color:#fff;margin-bottom:26px;display:flex;align-items:center;justify-content:space-between;}
+.pts-big{font-size:54px;font-weight:700;}
+.pts-lbl{font-size:14px;color:#c4b8ff;margin-top:4px;}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:14px;margin-bottom:28px;}
+.badge-item{background:#fff;border-radius:18px;padding:18px 10px;text-align:center;border:1.5px solid var(--border);}
+.badge-emoji{font-size:32px;}
+.badge-name{font-size:12px;color:var(--muted);margin-top:8px;font-weight:500;}
+.badge-item.locked{opacity:0.32;}
+.milestone-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0ecff;}
+.milestone-row:last-child{border-bottom:none;}
+
+/* ===== WINNERS ===== */
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:28px;align-items:end;}
+.podium-card{background:#fff;border-radius:24px;padding:24px;text-align:center;border:2px solid var(--border);}
+.podium-card.gold{border-color:#fbbf24;}
+.podium-card.silver{border-color:#cbd5e1;}
+.podium-card.bronze{border-color:#fed7aa;}
+.podium-medal{font-size:44px;margin-bottom:10px;}
+.podium-name{font-size:17px;font-weight:700;color:var(--text);}
+.podium-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.podium-pts{font-size:22px;font-weight:700;color:var(--purple);margin-top:10px;}
+.rank-badge{display:inline-block;margin-top:10px;font-size:12px;font-weight:600;border-radius:12px;padding:5px 14px;}
+.gold-b{background:#fef3c7;color:#d97706;}
+.silver-b{background:#f1f5f9;color:#64748b;}
+.bronze-b{background:#fff7ed;color:#c2410c;}
+.lb-row{background:#fff;border-radius:16px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;gap:14px;border:1.5px solid var(--border);}
+.lb-row.me{border-color:var(--purple);background:#f5f3ff;}
+.lb-rank{font-size:18px;font-weight:700;color:var(--purple);width:28px;}
+.lb-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.lb-name{font-size:15px;font-weight:600;color:var(--text);}
+.lb-streak{font-size:12px;color:#b0a3e0;}
+.lb-pts{margin-left:auto;font-size:15px;font-weight:700;color:var(--purple);}
+.hof{background:#fff;border-radius:20px;padding:22px;border:1.5px solid var(--border);margin-bottom:26px;}
+.hof-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:16px;}
+.hof-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid #f0ecff;}
+.hof-row:last-child{border-bottom:none;}
+.hof-month{font-size:12px;color:#b0a3e0;width:80px;}
+.hof-name{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.hof-pts{font-size:13px;color:var(--purple);font-weight:700;}
+
+footer{background:var(--purple);color:rgba(255,255,255,0.7);text-align:center;padding:30px 20px;font-size:14px;margin-top:48px;}
+footer strong{color:#fff;}
+
+@media(max-width:640px){
+  .mini-stats{grid-template-columns:1fr 1fr;}
+  .podium{grid-template-columns:1fr;}
+  .hero h1{font-size:28px;}
+  nav{padding:0 12px;}
+  .nav-btn{padding:6px 8px;font-size:12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">🌱</div>
+    <div class="auth-title" id="auth-title">Welcome to HabitUp</div>
+    <div class="auth-sub" id="auth-sub">Build healthy habits with your community</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="authTab('login')">Log in</button>
+      <button class="auth-tab" id="tab-signup" onclick="authTab('signup')">Sign up</button>
+    </div>
+
+    <input class="auth-input" id="inp-name" type="text" placeholder="Your full name" style="display:none;">
+    <input class="auth-input" id="inp-email" type="email" placeholder="Email address">
+    <input class="auth-input" id="inp-pass" type="password" placeholder="Password (min. 6 characters)">
+
+    <div class="auth-error" id="auth-error"></div>
+
+    <button class="auth-submit" id="auth-btn" onclick="submitAuth()">Log in</button>
+
+    <div class="auth-switch" id="auth-switch">
+      Don't have an account? <span onclick="authTab('signup')">Sign up free</span>
+    </div>
+
+    <div class="auth-divider">
+      <hr><span>or continue with</span><hr>
+    </div>
+    <div class="social-row">
+      <button class="social-btn" onclick="socialLogin()">🌐 Google</button>
+      <button class="social-btn" onclick="socialLogin()">🍎 Apple</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Habit<span>Up</span> 🌱</div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="goTo('home',this)">Home</button>
+    <button class="nav-btn" onclick="goTo('challenges',this)">Challenges</button>
+    <button class="nav-btn" onclick="goTo('community',this)">Community</button>
+    <button class="nav-btn" onclick="goTo('rewards',this)">Rewards</button>
+    <button class="nav-btn" onclick="goTo('winners',this)">Winners</button>
+    <button class="lang-btn" onclick="toggleLang()">🌐 AR</button>
+    <div class="user-chip" id="user-chip">👤 Alex</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1 data-en="Build Healthy Habits Together 🌟" data-ar="ابنِ عادات صحية مع مجتمعك 🌟">Build Healthy Habits Together 🌟</h1>
+  <p data-en="Join daily, weekly, and monthly challenges. Reduce screen time, stay active, and win rewards with your community." data-ar="انضم إلى تحديات يومية وأسبوعية وشهرية. قلّل وقت الشاشة وابقَ نشيطاً واكسب مكافآت.">Join daily, weekly, and monthly challenges. Reduce screen time, stay active, and win rewards with your community.</p>
+  <div class="hero-btns">
+    <button class="btn-white" onclick="goTo('challenges',document.querySelectorAll('.nav-btn')[1])">
+      <span data-en="Start a Challenge 🚀" data-ar="ابدأ تحدياً 🚀">Start a Challenge 🚀</span>
+    </button>
+    <button class="btn-outline" onclick="goTo('winners',document.querySelectorAll('.nav-btn')[4])">
+      <span data-en="See Winners 🏆" data-ar="شاهد الفائزين 🏆">See Winners 🏆</span>
+    </button>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-num">12,400+</div><div class="stat-label" data-en="Active Members" data-ar="عضو نشط">Active Members</div></div>
+  <div class="stat-item"><div class="stat-num">86,000+</div><div class="stat-label" data-en="Challenges Completed" data-ar="تحدٍّ مكتمل">Challenges Completed</div></div>
+  <div class="stat-item"><div class="stat-num">340+</div><div class="stat-label" data-en="Badges Earned" data-ar="شارة مكتسبة">Badges Earned</div></div>
+  <div class="stat-item"><div class="stat-num">98%</div><div class="stat-label" data-en="Satisfaction Rate" data-ar="معدل الرضا">Satisfaction Rate</div></div>
+</div>
+
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="announce">
+    <span style="font-size:30px">🏆</span>
+    <p data-en="🎉 Sara won this week's Screen Warrior challenge with 1,240 pts — Congratulations!" data-ar="🎉 فازت سارة بتحدي محارب الشاشة هذا الأسبوع بـ 1,240 نقطة — مبروك!">🎉 Sara won this week's Screen Warrior challenge with 1,240 pts — Congratulations!</p>
+  </div>
+  <div class="today-card" onclick="completeToday(this)">
+    <div class="today-label" data-en="Today's Challenge" data-ar="تحدي اليوم">Today's Challenge</div>
+    <div class="today-title" data-en="📵 No social media before 9am" data-ar="📵 لا تواصل اجتماعي قبل الساعة 9 صباحاً">📵 No social media before 9am</div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:60%"></div></div>
+    <div class="today-note" id="today-note" data-en="60% complete · Click to mark as done · +50 pts" data-ar="60% مكتمل · اضغط للإكمال · +50 نقطة">60% complete · Click to mark as done · +50 pts</div>
+  </div>
+  <div class="mini-stats">
+    <div class="mini-stat"><div class="ms-num" id="home-done">3</div><div class="ms-label" data-en="Done today" data-ar="أُنجز اليوم">Done today</div></div>
+    <div class="mini-stat"><div class="ms-num">12</div><div class="ms-label" data-en="Day streak 🔥" data-ar="أيام متتالية 🔥">Day streak 🔥</div></div>
+    <div class="mini-stat"><div class="ms-num" id="home-pts">840</div><div class="ms-label" data-en="Points ⭐" data-ar="نقاط ⭐">Points ⭐</div></div>
+    <div class="mini-stat"><div class="ms-num">#4</div><div class="ms-label" data-en="Your Rank 🏅" data-ar="ترتيبك 🏅">Your Rank 🏅</div></div>
+  </div>
+  <div class="section-title" data-en="Upcoming Challenges" data-ar="التحديات القادمة">Upcoming Challenges</div>
+  <div class="challenge-grid">
+    <div class="c-card"><div class="c-icon" style="background:#fef3c7">🏃</div><div class="c-name" data-en="30-min walk every day" data-ar="مشي 30 دقيقة يومياً">30-min walk every day</div><div class="c-meta" data-en="Weekly · 7 days left" data-ar="أسبوعي · 7 أيام متبقية">Weekly · 7 days left</div><div class="c-footer"><span class="c-pts">+200 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#dcfce7">🧘</div><div class="c-name" data-en="Morning mindfulness" data-ar="تأمل صباحي">Morning mindfulness</div><div class="c-meta" data-en="Daily · Starts tomorrow" data-ar="يومي · يبدأ غداً">Daily · Starts tomorrow</div><div class="c-footer"><span class="c-pts">+60 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#fce7f3">😴</div><div class="c-name" data-en="Sleep by 11pm" data-ar="النوم قبل 11 مساءً">Sleep by 11pm</div><div class="c-meta" data-en="Daily · Tonight" data-ar="يومي · الليلة">Daily · Tonight</div><div class="c-footer"><span class="c-pts">+40 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+  </div>
+</div>
+
+<!-- CHALLENGES -->
+<div class="screen" id="screen-challenges">
+  <div class="section-title" data-en="All Challenges" data-ar="جميع التحديات">All Challenges</div>
+  <div class="tab-row">
+    <button class="tab-btn active" onclick="switchTab(this,'daily')" data-en="Daily" data-ar="يومي">Daily</button>
+    <button class="tab-btn" onclick="switchTab(this,'weekly')" data-en="Weekly" data-ar="أسبوعي">Weekly</button>
+    <button class="tab-btn" onclick="switchTab(this,'monthly')" data-en="Monthly" data-ar="شهري">Monthly</button>
+  </div>
+  <div id="tab-daily" class="challenge-grid">
+    <div class="c-card"><div class="c-icon" style="background:#ede9fe">📵</div><div class="c-name" data-en="No social media before 9am" data-ar="لا تواصل اجتماعي قبل 9 صباحاً">No social media before 9am</div><div class="c-meta" data-en="Screen-free" data-ar="بلا شاشة">Screen-free</div><div class="c-footer"><span class="c-pts">+50 pts</span><button class="join-btn done">Done!</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#fce7f3">😴</div><div class="c-name" data-en="Sleep by 11pm" data-ar="النوم قبل 11 مساءً">Sleep by 11pm</div><div class="c-meta" data-en="Sleep hygiene" data-ar="نظافة النوم">Sleep hygiene</div><div class="c-footer"><span class="c-pts">+40 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#dcfce7">💧</div><div class="c-name" data-en="Drink 8 glasses of water" data-ar="اشرب 8 أكواب ماء">Drink 8 glasses of water</div><div class="c-meta" data-en="Health" data-ar="صحة">Health</div><div class="c-footer"><span class="c-pts">+30 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#fef3c7">📚</div><div class="c-name" data-en="Read 20 pages" data-ar="اقرأ 20 صفحة">Read 20 pages</div><div class="c-meta" data-en="Learning" data-ar="تعلّم">Learning</div><div class="c-footer"><span class="c-pts">+35 pts</span><button class="join-btn joined" onclick="joinChallenge(this)">Joined</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#ede9fe">🧘</div><div class="c-name" data-en="10-min meditation" data-ar="تأمل 10 دقائق">10-min meditation</div><div class="c-meta" data-en="Mindfulness" data-ar="يقظة ذهنية">Mindfulness</div><div class="c-footer"><span class="c-pts">+45 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#fce7f3">🎨</div><div class="c-name" data-en="Draw or doodle 15 mins" data-ar="ارسم 15 دقيقة">Draw or doodle 15 mins</div><div class="c-meta" data-en="Creativity" data-ar="إبداع">Creativity</div><div class="c-footer"><span class="c-pts">+35 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+  </div>
+  <div id="tab-weekly" class="challenge-grid" style="display:none">
+    <div class="c-card"><div class="c-icon" style="background:#fef3c7">🏃</div><div class="c-name" data-en="30-min walk every day" data-ar="مشي 30 دقيقة يومياً">30-min walk every day</div><div class="c-meta" data-en="Fitness · 7 days" data-ar="لياقة · 7 أيام">Fitness · 7 days</div><div class="c-footer"><span class="c-pts">+200 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#ede9fe">🧠</div><div class="c-name" data-en="Screen time under 2h/day" data-ar="وقت الشاشة أقل من ساعتين">Screen time under 2h/day</div><div class="c-meta" data-en="Screen-free · 7 days" data-ar="بلا شاشة · 7 أيام">Screen-free · 7 days</div><div class="c-footer"><span class="c-pts">+250 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#fce7f3">🎨</div><div class="c-name" data-en="Creative hobby every day" data-ar="هواية إبداعية يومياً">Creative hobby every day</div><div class="c-meta" data-en="Creativity · 7 days" data-ar="إبداع · 7 أيام">Creativity · 7 days</div><div class="c-footer"><span class="c-pts">+180 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#dcfce7">🥗</div><div class="c-name" data-en="Eat healthy every day" data-ar="تناول طعاماً صحياً يومياً">Eat healthy every day</div><div class="c-meta" data-en="Health · 7 days" data-ar="صحة · 7 أيام">Health · 7 days</div><div class="c-footer"><span class="c-pts">+160 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+  </div>
+  <div id="tab-monthly" class="challenge-grid" style="display:none">
+    <div class="c-card"><div class="c-icon" style="background:#dcfce7">🌱</div><div class="c-name" data-en="30-day digital detox" data-ar="30 يوماً بلا سموم رقمية">30-day digital detox</div><div class="c-meta" data-en="Screen-free · 30 days" data-ar="بلا شاشة · 30 يوماً">Screen-free · 30 days</div><div class="c-footer"><span class="c-pts">+1000 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#fef3c7">🏅</div><div class="c-name" data-en="Exercise 20 days this month" data-ar="تمرّن 20 يوماً هذا الشهر">Exercise 20 days this month</div><div class="c-meta" data-en="Fitness · 30 days" data-ar="لياقة · 30 يوماً">Fitness · 30 days</div><div class="c-footer"><span class="c-pts">+800 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+    <div class="c-card"><div class="c-icon" style="background:#ede9fe">📖</div><div class="c-name" data-en="Read a full book" data-ar="اقرأ كتاباً كاملاً">Read a full book</div><div class="c-meta" data-en="Learning · 30 days" data-ar="تعلّم · 30 يوماً">Learning · 30 days</div><div class="c-footer"><span class="c-pts">+600 pts</span><button class="join-btn join" onclick="joinChallenge(this)">Join</button></div></div>
+  </div>
+</div>
+
+<!-- COMMUNITY -->
+<div class="screen" id="screen-community">
+  <div class="section-title" data-en="Community Feed" data-ar="تغذية المجتمع">Community Feed</div>
+  <div class="feed-item">
+    <div class="feed-header"><div class="feed-avatar" style="background:#6C4FD6">S</div><div><div class="feed-name">Sara K.</div><div class="feed-time" data-en="2 minutes ago" data-ar="منذ دقيقتين">2 minutes ago</div></div></div>
+    <div class="feed-text" data-en="Just completed day 7 of screen time under 2h/day! I feel so much more present with my family 🌿" data-ar="أكملت اليوم السابع من تحدي وقت الشاشة! أشعر بحضور أكبر مع عائلتي 🌿">Just completed day 7 of screen time under 2h/day! I feel so much more present with my family 🌿</div>
+    <div class="feed-actions"><button class="cheer-btn" onclick="cheer(this)">⭐ Cheer <span>(24)</span></button><button class="cheer-btn" onclick="cheer(this)">❤️ Love <span>(11)</span></button></div>
+  </div>
+  <div class="feed-item">
+    <div class="feed-header"><div class="feed-avatar" style="background:#f59e0b">M</div><div><div class="feed-name">Marco T.</div><div class="feed-time" data-en="15 minutes ago" data-ar="منذ 15 دقيقة">15 minutes ago</div></div></div>
+    <div class="feed-text" data-en="Day 3 of morning walks done! The air was so fresh ☀️ Who else is doing the weekly fitness challenge?" data-ar="أنجزت اليوم الثالث من المشي الصباحي! الهواء كان منعشاً جداً ☀️">Day 3 of morning walks done! The air was so fresh ☀️ Who else is doing the weekly fitness challenge?</div>
+    <div class="feed-actions"><button class="cheer-btn" onclick="cheer(this)">⭐ Cheer <span>(8)</span></button><button class="cheer-btn" onclick="cheer(this)">❤️ Love <span>(5)</span></button></div>
+  </div>
+  <div class="feed-item">
+    <div class="feed-header"><div class="feed-avatar" style="background:#22c55e">L</div><div><div class="feed-name">Layla M.</div><div class="feed-time" data-en="1 hour ago" data-ar="منذ ساعة">1 hour ago</div></div></div>
+    <div class="feed-text" data-en="Just read my 20 pages for today! Building the habit slowly but surely 📚" data-ar="أنهيت قراءة 20 صفحة اليوم! أبني العادة خطوة بخطوة 📚">Just read my 20 pages for today! Building the habit slowly but surely 📚</div>
+    <div class="feed-actions"><button class="cheer-btn" onclick="cheer(this)">⭐ Cheer <span>(3)</span></button><button class="cheer-btn" onclick="cheer(this)">❤️ Love <span>(7)</span></button></div>
+  </div>
+  <div class="feed-item">
+    <div class="feed-header"><div class="feed-avatar" style="background:#f43f5e">F</div><div><div class="feed-name">Fatima A.</div><div class="feed-time" data-en="3 hours ago" data-ar="منذ 3 ساعات">3 hours ago</div></div></div>
+    <div class="feed-text" data-en="Completed the 30-day digital detox! It changed my life completely 💎" data-ar="أكملت تحدي إزالة السموم الرقمية لمدة 30 يوماً! غيّر حياتي تماماً 💎">Completed the 30-day digital detox! It changed my life completely 💎</div>
+    <div class="feed-actions"><button class="cheer-btn" onclick="cheer(this)">⭐ Cheer <span>(52)</span></button><button class="cheer-btn" onclick="cheer(this)">❤️ Love <span>(38)</span></button></div>
+  </div>
+</div>
+
+<!-- REWARDS -->
+<div class="screen" id="screen-rewards">
+  <div class="pts-card">
+    <div><div class="pts-lbl" data-en="Your total points" data-ar="نقاطك الإجمالية">Your total points</div><div class="pts-big" id="pts-big">840</div><div class="pts-lbl" data-en="Keep going — more rewards await! 🚀" data-ar="استمر — المزيد من المكافآت بانتظارك! 🚀">Keep going — more rewards await! 🚀</div></div>
+    <div style="font-size:70px">🎯</div>
+  </div>
+  <div class="section-title" data-en="Your Badges" data-ar="شاراتك">Your Badges</div>
+  <div class="badge-grid">
+    <div class="badge-item"><div class="badge-emoji">🌱</div><div class="badge-name" data-en="First Step" data-ar="الخطوة الأولى">First Step</div></div>
+    <div class="badge-item"><div class="badge-emoji">🔥</div><div class="badge-name" data-en="7-Day Streak" data-ar="7 أيام متتالية">7-Day Streak</div></div>
+    <div class="badge-item"><div class="badge-emoji">📵</div><div class="badge-name" data-en="Screen Warrior" data-ar="محارب الشاشة">Screen Warrior</div></div>
+    <div class="badge-item"><div class="badge-emoji">🏃</div><div class="badge-name" data-en="Active Week" data-ar="أسبوع نشط">Active Week</div></div>
+    <div class="badge-item locked"><div class="badge-emoji">💎</div><div class="badge-name" data-en="30-Day Pro" data-ar="محترف 30 يوم">30-Day Pro</div></div>
+    <div class="badge-item locked"><div class="badge-emoji">👑</div><div class="badge-name" data-en="Champion" data-ar="بطل">Champion</div></div>
+    <div class="badge-item locked"><div class="badge-emoji">🌙</div><div class="badge-name" data-en="Sleep Master" data-ar="سيد النوم">Sleep Master</div></div>
+    <div class="badge-item locked"><div class="badge-emoji">📚</div><div class="badge-name" data-en="Bookworm" data-ar="دودة كتب">Bookworm</div></div>
+  </div>
+  <div class="section-title" data-en="Streak Milestones" data-ar="معالم السلسلة">Streak Milestones</div>
+  <div style="background:#fff;border-radius:20px;padding:22px;border:1.5px solid var(--border);">
+    <div class="milestone-row"><span style="font-size:14px;color:#4a3d8c" data-en="3-day streak — +100 bonus pts" data-ar="سلسلة 3 أيام — +100 نقطة إضافية">3-day streak — +100 bonus pts</span><span style="color:var(--green);font-weight:700" data-en="✓ Earned" data-ar="✓ مكتسبة">✓ Earned</span></div>
+    <div class="milestone-row"><span style="font-size:14px;color:#4a3d8c" data-en="7-day streak — +250 bonus pts" data-ar="سلسلة 7 أيام — +250 نقطة إضافية">7-day streak — +250 bonus pts</span><span style="color:var(--green);font-weight:700" data-en="✓ Earned" data-ar="✓ مكتسبة">✓ Earned</span></div>
+    <div class="milestone-row"><span style="font-size:14px;color:#4a3d8c" data-en="14-day streak — +500 bonus pts" data-ar="سلسلة 14 يوماً — +500 نقطة إضافية">14-day streak — +500 bonus pts</span><span style="color:var(--muted);font-size:13px" data-en="2 days away" data-ar="يومان متبقيان">2 days away</span></div>
+    <div class="milestone-row"><span style="font-size:14px;color:#4a3d8c" data-en="30-day streak — +1,000 bonus pts" data-ar="سلسلة 30 يوماً — +1,000 نقطة إضافية">30-day streak — +1,000 bonus pts</span><span style="color:var(--muted);font-size:13px" data-en="18 days away" data-ar="18 يوماً متبقياً">18 days away</span></div>
+  </div>
+</div>
+
+<!-- WINNERS -->
+<div class="screen" id="screen-winners">
+  <div style="text-align:center;font-size:40px;margin-bottom:20px">🎉 🏆 🎊</div>
+  <div class="section-title" data-en="This Week's Winners" data-ar="فائزو هذا الأسبوع">This Week's Winners</div>
+  <div class="podium">
+    <div class="podium-card silver" style="margin-top:30px"><div class="podium-medal">🥈</div><div class="podium-name">Marco T.</div><div class="podium-sub" data-en="Fitness Leader" data-ar="قائد اللياقة">Fitness Leader</div><div class="podium-pts">980 pts</div><div class="rank-badge silver-b" data-en="2nd Place" data-ar="المركز الثاني">2nd Place</div></div>
+    <div class="podium-card gold"><div class="podium-medal">🥇</div><div class="podium-name">Sara K.</div><div class="podium-sub" data-en="Screen Warrior Champion" data-ar="بطلة محاربة الشاشة">Screen Warrior Champion</div><div class="podium-pts">1,240 pts</div><div class="rank-badge gold-b" data-en="Weekly MVP 👑" data-ar="أفضل لاعب أسبوعي 👑">Weekly MVP 👑</div></div>
+    <div class="podium-card bronze" style="margin-top:50px"><div class="podium-medal">🥉</div><div class="podium-name">Layla M.</div><div class="podium-sub" data-en="Mindfulness Star" data-ar="نجمة اليقظة">Mindfulness Star</div><div class="podium-pts">870 pts</div><div class="rank-badge bronze-b" data-en="3rd Place" data-ar="المركز الثالث">3rd Place</div></div>
+  </div>
+  <div class="hof">
+    <div class="hof-title" data-en="🏛️ Hall of Fame — All-Time Champions" data-ar="🏛️ قاعة المشاهير — أبطال كل العصور">🏛️ Hall of Fame — All-Time Champions</div>
+    <div class="hof-row"><div class="hof-month">Apr 2026</div><div class="hof-name">Sara K.</div><div class="hof-pts">4,820 pts</div></div>
+    <div class="hof-row"><div class="hof-month">Mar 2026</div><div class="hof-name">James R.</div><div class="hof-pts">4,310 pts</div></div>
+    <div class="hof-row"><div class="hof-month">Feb 2026</div><div class="hof-name">Fatima A.</div><div class="hof-pts">3,990 pts</div></div>
+    <div class="hof-row"><div class="hof-month">Jan 2026</div><div class="hof-name">Marco T.</div><div class="hof-pts">3,750 pts</div></div>
+  </div>
+  <div class="section-title" data-en="Live Leaderboard" data-ar="لوحة المتصدرين المباشرة">Live Leaderboard</div>
+  <div class="lb-row"><div class="lb-rank">1</div><div class="lb-av" style="background:#6C4FD6">S</div><div><div class="lb-name">Sara K.</div><div class="lb-streak" data-en="12-day streak 🔥" data-ar="12 يوماً متتالياً 🔥">12-day streak 🔥</div></div><div class="lb-pts">1,240 pts</div></div>
+  <div class="lb-row"><div class="lb-rank">2</div><div class="lb-av" style="background:#f59e0b">M</div><div><div class="lb-name">Marco T.</div><div class="lb-streak" data-en="8-day streak 🔥" data-ar="8 أيام متتالية 🔥">8-day streak 🔥</div></div><div class="lb-pts">980 pts</div></div>
+  <div class="lb-row"><div class="lb-rank">3</div><div class="lb-av" style="background:#22c55e">L</div><div><div class="lb-name">Layla M.</div><div class="lb-streak" data-en="5-day streak" data-ar="5 أيام متتالية">5-day streak</div></div><div class="lb-pts">870 pts</div></div>
+  <div class="lb-row me"><div class="lb-rank">4</div><div class="lb-av" style="background:#a78bfa" id="my-av">A</div><div><div class="lb-name" id="lb-my-name">You</div><div class="lb-streak" data-en="12-day streak 🔥" data-ar="12 يوماً متتالياً 🔥">12-day streak 🔥</div></div><div class="lb-pts" id="lb-my-pts">840 pts</div></div>
+  <div class="lb-row"><div class="lb-rank">5</div><div class="lb-av" style="background:#f43f5e">J</div><div><div class="lb-name">James R.</div><div class="lb-streak" data-en="3-day streak" data-ar="3 أيام متتالية">3-day streak</div></div><div class="lb-pts">620 pts</div></div>
+</div>
+
+<footer>
+  <strong>HabitUp 🌱</strong> — <span data-en="Building healthier communities, one habit at a time." data-ar="نبني مجتمعات أكثر صحة، عادة واحدة في كل مرة.">Building healthier communities, one habit at a time.</span>
+</footer>
+
+<script>
+var pts=840, doneCnt=3, todayDone=false, lang='en', authMode='login', userName='Alex';
+
+function authTab(mode){
+  authMode=mode;
+  var isSignup=(mode==='signup');
+  document.getElementById('inp-name').style.display=isSignup?'block':'none';
+  document.getElementById('tab-login').className='auth-tab'+(isSignup?'':' active');
+  document.getElementById('tab-signup').className='auth-tab'+(isSignup?' active':'');
+  document.getElementById('auth-title').textContent=isSignup?'Create your account':'Welcome to HabitUp';
+  document.getElementById('auth-sub').textContent=isSignup?'Join thousands building healthy habits':'Build healthy habits with your community';
+  document.getElementById('auth-btn').textContent=isSignup?'Create account':'Log in';
+  document.getElementById('auth-switch').innerHTML=isSignup
+    ?'Already have an account? <span onclick="authTab(\'login\')">Log in</span>'
+    :'Don\'t have an account? <span onclick="authTab(\'signup\')">Sign up free</span>';
+  document.getElementById('auth-error').textContent='';
+}
+
+function submitAuth(){
+  var name=document.getElementById('inp-name').value.trim();
+  var email=document.getElementById('inp-email').value.trim();
+  var pass=document.getElementById('inp-pass').value.trim();
+  var errEl=document.getElementById('auth-error');
+  if(authMode==='signup'&&!name){errEl.textContent='Please enter your full name.';return;}
+  if(!email||email.indexOf('@')===-1){errEl.textContent='Please enter a valid email address.';return;}
+  if(pass.length<6){errEl.textContent='Password must be at least 6 characters.';return;}
+  errEl.textContent='';
+  if(authMode==='signup'&&name) userName=name;
+  enterApp();
+}
+
+function socialLogin(){
+  enterApp();
+}
+
+function enterApp(){
+  document.getElementById('auth-overlay').style.display='none';
+  document.getElementById('user-chip').textContent='👤 '+userName;
+  document.querySelector('.greeting') && (document.querySelector('.greeting').textContent='Good morning, '+userName+'! 👋');
+  var av=document.getElementById('my-av');
+  if(av) av.textContent=userName.charAt(0).toUpperCase();
+  document.getElementById('lb-my-name').textContent=userName+' (you)';
+}
+
+function goTo(screen,el){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nav-btn').forEach(function(n){n.classList.remove('active');});
+  document.getElementById('screen-'+screen).classList.add('active');
+  if(el&&el.classList) el.classList.add('active');
+  window.scrollTo({top:64,behavior:'smooth'});
+}
+
+function switchTab(btn,tab){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  ['daily','weekly','monthly'].forEach(function(t){
+    var el=document.getElementById('tab-'+t);
+    if(el) el.style.display=(t===tab)?'grid':'none';
+  });
+}
+
+function joinChallenge(btn){
+  if(btn.classList.contains('join')){
+    btn.classList.remove('join');btn.classList.add('joined');
+    btn.textContent=lang==='ar'?'منضم':'Joined';
+  } else if(btn.classList.contains('joined')){
+    btn.classList.remove('joined');btn.classList.add('done');
+    btn.textContent=lang==='ar'?'أنجزت!':'Done!';
+    addPts(40); doneCnt++;
+    var hd=document.getElementById('home-done');
+    if(hd) hd.textContent=doneCnt;
+  }
+}
+
+function addPts(n){
+  pts+=n;
+  var pb=document.getElementById('pts-big');
+  var hp=document.getElementById('home-pts');
+  var lp=document.getElementById('lb-my-pts');
+  if(pb) pb.textContent=pts.toLocaleString();
+  if(hp) hp.textContent=pts.toLocaleString();
+  if(lp) lp.textContent=pts.toLocaleString()+' pts';
+}
+
+function completeToday(card){
+  if(todayDone) return;
+  todayDone=true;
+  var fill=document.getElementById('prog-fill');
+  var note=document.getElementById('today-note');
+  if(fill) fill.style.width='100%';
+  card.style.background='linear-gradient(135deg,#22c55e,#4ade80)';
+  if(note) note.textContent=lang==='ar'?'مكتمل! +50 نقطة مكتسبة 🎉':'Completed! +50 pts earned! 🎉';
+  addPts(50); doneCnt++;
+  var hd=document.getElementById('home-done');
+  if(hd) hd.textContent=doneCnt;
+}
+
+function cheer(btn){
+  var span=btn.querySelector('span');
+  var n=parseInt(span.textContent.replace(/[()]/g,''))+1;
+  span.textContent='('+n+')';
+  btn.style.background='#ddd6ff';
+}
+
+function toggleLang(){
+  lang=(lang==='en')?'ar':'en';
+  document.querySelector('.lang-btn').textContent=lang==='en'?'🌐 AR':'🌐 EN';
+  document.documentElement.lang=lang;
+  document.body.classList.toggle('rtl',lang==='ar');
+  document.querySelectorAll('[data-en]').forEach(function(el){
+    if(el.classList&&(el.classList.contains('join-btn')||el.classList.contains('auth-tab'))) return;
+    el.textContent=lang==='ar'?el.dataset.ar:el.dataset.en;
+  });
+}
+</script>
+</body>
+</html>
